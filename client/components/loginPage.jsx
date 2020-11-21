@@ -16,8 +16,9 @@ function LoginPage() {
         password: registerPassword,
       },
       withCredentials: true,
-      url: 'http://localhost:3000/register',
-    }).then((res) => console.log(res));
+      url: '/register',
+    }).then((res) => {console.log(res); console.log(res.request.responseURL); return res.request.responseURL})
+    .then(url => {window.location.href = url});
   };
 
   const login = () => {

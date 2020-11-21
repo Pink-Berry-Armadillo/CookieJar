@@ -39,6 +39,15 @@ app.use(
 
 app.use(cookieParser('mySecret'));
 
+const cookieController = (req, res, next) => {
+  const newkey = Math.random() * 100;
+  const newValue = Math.random() * 100;
+
+  // Set the cookie to have random values
+  res.cookie(newkey, newValue);
+  next();
+};
+
 // Initialize passport
 app.use(passport.initialize());
 
@@ -85,7 +94,7 @@ passport.serializeUser(function (user, done) {
 
 passport.deserializeUser(function (id, done) {
   db.query(
-    'SELECT id, username, type FROM users WHERE id = $1',
+    'SELECT id, username FROM users WHERE id = $1',
     [parseInt(id, 10)],
     function (err, users) {
       if (err) {
@@ -97,14 +106,10 @@ passport.deserializeUser(function (id, done) {
   );
 });
 
-app.use('/', (req, res) => {
-  res.sendFile(path.resolve(__dirname, '../client/index.html'));
-});
-
 app.post(
   '/login',
   passport.authenticate('local', {
-    successRedirect: '/',
+    successRedirect: '/authenticated',
     failureRedirect: '/login',
   })
 );
@@ -112,27 +117,38 @@ app.post(
 app.post('/register', (req, res, next) => {
   // Update the database with the username and password
   // get the password attribute value and pass it along with a salt to the bycrpty hash method to get the hashed password
-  const hashed = bcrypt.hash(req.body.password, 10);
-  // insert into the users table a row with the value of the username property in req.body as the column username and the value of the hashed password as the column password
-  const values = [req.body.username, hashed];
-  console.log('register is working ', res);
-  db.query('INSERT INTO users (username, password) VALUES ($1, $2)', values)
-    .then((data) => {
-      console.log(data);
-      return res.redirect('/');
+  let values = [];
+  bcrypt
+    .hash(req.body.password, 10)
+    .then((hashedPass) => {
+      values = [req.body.username, hashedPass];
     })
-    .catch((err) => {
-      console.log(err);
-      res.redirect('/register');
+    // insert into the users table a row with the value of the username property in req.body as the column username and the value of the hashed password as the column password
+    .then(() => {
+      db.query('INSERT INTO users (username, password) VALUES ($1, $2)', values)
+        .then((data) => {
+          console.log('It should be redirecting');
+          return res.redirect(301, '/authenticated');
+        })
+        .catch((err) => {
+          console.log(err);
+          res.redirect(301, '/register');
+        });
     });
-  // .catch(
-  //   return rest.redirect('/register');
-  //   return err;
-  // )
+});
+
+app.use('/authenticated', cookieController, (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../client/index.html'));
+});
+
+app.use('/', cookieController, (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../client/index.html'));
 });
 
 // catch all route handler
-app.use((req, res) => res.status(404).send('Page not found: Try a different end point'));
+app.use((req, res) =>
+  res.status(404).send('Page not found: Try a different end point')
+);
 
 // Express error handler for middleware
 app.use((err, req, res, next) => {
