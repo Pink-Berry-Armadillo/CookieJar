@@ -1,22 +1,21 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import CookieJar from './CookieJar';
 
-class App extends Component {
+class Cookie extends Component {
+
+    // should render <p> tag with cookies info, which is passed down from Cookie Jar
 
     constructor(props) {
         super(props);
-        this.state = {};
     }
 
     render() {
         return (
         <div>
-            <h2>Welcome to the Cookie Jar</h2>
-            <CookieJar />
+            <p>{this.props.cookie}</p>
         </div>
         );
     }
 }
 
-export default App;
+export default Cookie;
