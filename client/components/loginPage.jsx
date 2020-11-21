@@ -1,36 +1,34 @@
-import React, { useState } from "react";
-import Axios from "axios";
+import React, { useState } from 'react';
+import Axios from 'axios';
 
 function LoginPage() {
+  // React hooks for state management
+  const [registerUsername, setRegisterUsername] = useState('');
+  const [registerPassword, setRegisterPassword] = useState('');
+  const [loginUsername, setLoginUsername] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
 
-    // React hooks for state management
-  const [registerUsername, setRegisterUsername] = useState("");
-  const [registerPassword, setRegisterPassword] = useState("");
-  const [loginUsername, setLoginUsername] = useState("");
-  const [loginPassword, setLoginPassword] = useState("");
-  const [data, setData] = useState(null);
-  
   const register = () => {
     Axios({
-      method: "POST",
+      method: 'POST',
       data: {
         username: registerUsername,
         password: registerPassword,
       },
       withCredentials: true,
-      url: "http://localhost:3000/register",
+      url: 'http://localhost:3000/register',
     }).then((res) => console.log(res));
   };
-  
+
   const login = () => {
     Axios({
-      method: "POST",
+      method: 'POST',
       data: {
         username: loginUsername,
         password: loginPassword,
       },
       withCredentials: true,
-      url: "http://localhost:3000/login",
+      url: 'http://localhost:3000/login',
     }).then((res) => console.log(res));
   };
 
@@ -46,7 +44,7 @@ function LoginPage() {
           placeholder="password"
           onChange={(e) => setRegisterPassword(e.target.value)}
         />
-        <button onClick={register}>Submit</button>
+        <button type="button" onClick={register}>Submit</button>
       </div>
 
       <div className="LoginComponent">
@@ -59,9 +57,8 @@ function LoginPage() {
           placeholder="password"
           onChange={(e) => setLoginPassword(e.target.value)}
         />
-        <button onClick={login}>Submit</button>
+        <button type="button" onClick={login}>Submit</button>
       </div>
-
     </div>
   );
 }
